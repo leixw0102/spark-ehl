@@ -1,0 +1,5 @@
+package com.ehl.lxw.common
+
+message Car{
+    required string
+}
