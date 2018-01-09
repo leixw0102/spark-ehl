@@ -1,5 +1,10 @@
 package com.ehl.tvc.lxw.core.parser
 
+import com.ehl.tvc.lxw.core.ParserFactoryImpl
+
+import scala.collection.JavaConverters._
+import scala.collection.mutable.ArrayBuffer
+
 /**
   * Created by 雷晓武 on 2017/1/12.
   * 解析shell传递参数
@@ -10,13 +15,11 @@ trait ArgumentParser {
     def verify():Boolean=true;
 }
 
-class OfflineParams extends Serializable with ArgumentParser{
+class OfflineParams extends AbstractArgumentParserParam{
     var isYarn=false;
     var yarnFile=""
     var isEs = false;
-    override def parser(args: Array[String]): Unit = {
-        parser(args.toList)
-    }
+
     def printUsageAndExit(i: Int): Unit = {
         System.err.println(
             "Usage: process data [options]\n" +
@@ -30,31 +33,43 @@ class OfflineParams extends Serializable with ArgumentParser{
         System.exit(i)
     }
 
-    def parser(args: List[String]): Unit = args match {
-        case ("-isYarn") :: value :: tail =>
-            isYarn = value.toBoolean;
-            parser(tail)
+    def parser(args: List[String]): Unit = {
+        args match {
+            case ("-isYarn") :: value :: tail =>
+                isYarn = value.toBoolean;
+                parser(tail)
 
-        case ("-yarnFile") :: value :: tail =>
-            yarnFile = value
-            parser(tail)
-        case ("-isEs") :: value :: tail =>
-            isEs=value.toBoolean
-            parser(tail)
-        case ("--help") :: tail =>
-            printUsageAndExit(0)
+            case ("-yarnFile") :: value :: tail =>
+                yarnFile = value
+                parser(tail)
+            case ("-isEs") :: value :: tail =>
+                isEs = value.toBoolean
+                parser(tail)
+                        case ("--help") :: tail =>
+                            printUsageAndExit(0)
 
-        case Nil => {}
+            case Nil => {}
+            //
+            case _ => printUsageAndExit(1)
+        }
 
-        case _ =>
-            printUsageAndExit(1)
     }
 
-    override def toString=yarnFile
+    override def toString=yarnFile+"\t"+isYarn+"\t"+isEs
+}
+
+
+abstract class AbstractArgumentParserParam extends Serializable with ArgumentParser{
+
+    def parser(toList: List[String]): Unit
+
+    override def parser(args: Array[String]): Unit = {
+        parser(args.toList)
+    }
 
 }
 
-class StreamingParams extends Serializable with ArgumentParser{
+class StreamingParams extends AbstractArgumentParserParam{
 
     var duration=1;
     var isYarn=false;
@@ -75,18 +90,13 @@ class StreamingParams extends Serializable with ArgumentParser{
               "                         Default is conf/spark-defaults.conf.")
         System.exit(i)
     }
-    override def parser(args:Array[String]): Unit ={
-        parser(args.toList)
-    }
-    def parser(args: List[String]): Unit = args match {
+
+    override def parser(args: List[String]): Unit = args match {
         case ("-d") :: value :: tail=>
             duration = Option(value).getOrElse("1").toInt
             parser(tail)
         case ("-path") :: value :: tail=>
             checkPointPath = value
-            parser(tail)
-        case ("-isEs") :: value :: tail=>
-            isEs = value.toBoolean
             parser(tail)
         case ("-isYarn") :: value :: tail =>
             isYarn = value.toBoolean;
@@ -94,6 +104,9 @@ class StreamingParams extends Serializable with ArgumentParser{
 
         case ("-yarnFile") :: value :: tail =>
             yarnFile = value
+            parser(tail)
+        case ("-isEs") :: value :: tail =>
+            isEs = value.toBoolean
             parser(tail)
         case ("--help") :: tail =>
             printUsageAndExit(0)
@@ -106,4 +119,6 @@ class StreamingParams extends Serializable with ArgumentParser{
 
     override def toString()={duration+"\t"+checkPointPath}
 }
+
+
 

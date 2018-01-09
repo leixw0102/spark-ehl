@@ -2,7 +2,6 @@ package com.ehl.tvc.lxw.core.realtime
 
 import com.ehl.tvc.lxw.common.EhlConfiguration
 import com.ehl.tvc.lxw.core.SparkStreamOp
-import com.ehl.tvc.lxw.core.parser.{ArgumentParser, StreamingParams}
 import org.apache.spark.{SparkConf, SparkFiles}
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 
@@ -15,7 +14,7 @@ abstract class AbstractSparkStreamingWithEs extends SparkStreamOp {
     ehlConfiguration.getStartWithNameMap("es")
   }
 
-  override def getParserParameter:ArgumentParser=new StreamingParams
+//  override def getParserParameter:ArgumentParser=new StreamingParams
 
   override def operateStreamingSpark(arg:Array[String],ehlConf:EhlConfiguration)(op:StreamingContext=>Unit): Unit ={
       val conf = new SparkConf();
@@ -24,7 +23,7 @@ abstract class AbstractSparkStreamingWithEs extends SparkStreamOp {
 //        conf.setMaster(arg(0))
 //      }
     //parameter parser
-     val parser = getParserParameter.asInstanceOf[StreamingParams]
+     val parser = getParserFactory.getParserParameter(argumentClass).get
     parser.parser(arg)
 
     if(parser.isEs){

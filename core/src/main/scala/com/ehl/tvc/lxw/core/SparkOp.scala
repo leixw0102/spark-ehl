@@ -6,6 +6,7 @@
 package com.ehl.tvc.lxw.core
 
 import com.ehl.tvc.lxw.common.EhlConfiguration
+import com.ehl.tvc.lxw.core.parser.OfflineParams
 import org.apache.spark.{SparkConf, SparkContext}
 
 /**
@@ -13,25 +14,19 @@ import org.apache.spark.{SparkConf, SparkContext}
  *
  * @author ehl
  */
-trait SparkOp extends ParserFactory{
+trait SparkOp extends EhlSpark{
 
 
-  /**
-    * 获取spark app name
-    *
-    * @return
-    */
-  def getSparkAppName:String
 
   /**
     * 設置hadoop配置
     */
   def setHadoopConfig(sc:SparkContext):Unit
 
-  def initEhlConfig:EhlConfiguration
+
+  override def argumentClass=new OfflineParams().getClass
 
 
-  val ehlConf=initEhlConfig
   /**
     * sparkContext
     *(op:(SparkContext)=>Unit)

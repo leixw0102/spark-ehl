@@ -7,8 +7,19 @@
     <groupId>com.ehl.tvc.lxw</groupId>
     <artifactId>tvc-lxw</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
-
+    <version>1.1</version>
+    <distributionManagement>
+        <repository>
+            <id>nexus-releases</id>
+            <url>http://10.150.27.71:8081/nexus/content/repositories/releases/</url>
+            <name>EHL106</name>
+        </repository>
+        <snapshotRepository>
+            <id>nexus-snapshots</id>
+            <url>http://10.150.27.71:8081/nexus/content/repositories/snapshots/</url>
+            <name>EHL106</name>
+        </snapshotRepository>
+    </distributionManagement>
     <properties>
         <slf4j.api.version>1.7.5</slf4j.api.version>
         <logback.version>1.0.9</logback.version>

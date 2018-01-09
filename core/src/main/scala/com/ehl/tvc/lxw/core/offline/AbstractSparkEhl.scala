@@ -1,25 +1,21 @@
 package com.ehl.tvc.lxw.core.offline
 
-import java.io.File
-
 import com.ehl.tvc.lxw.common.EhlConfiguration
 import com.ehl.tvc.lxw.core.SparkOp
-import com.ehl.tvc.lxw.core.parser.{ArgumentParser, OfflineParams}
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.log4j.Logger
-import org.apache.spark.{SparkConf, SparkContext, SparkFiles}
+import org.apache.spark.{SparkConf, SparkContext}
 
 
 /**
   * Created by 雷晓武 on 2016/12/6.
   */
-abstract class AbstractSparkEhl extends SparkOp with App{
+abstract class AbstractSparkEhl extends SparkOp {
   val logger = Logger.getLogger(getClass)
   def getESConfig(ehlConfiguration: EhlConfiguration):Map[String,String]={
     ehlConfiguration.getStartWithNameMap("es")
   }
 
-  override def getParserParameter:ArgumentParser=new OfflineParams
 
   /**
     * 設置hadoop配置
@@ -30,13 +26,13 @@ abstract class AbstractSparkEhl extends SparkOp with App{
    def operateSpark(args:Array[String],ehlConf:EhlConfiguration)(op:SparkContext=>Unit){
 
     //first
-    val conf=new SparkConf().setAppName(getSparkAppName).set("spark.serializer","org.apache.spark.serializer.KryoSerializer")
-    val parser = getParserParameter.asInstanceOf[OfflineParams]
+    val conf=new SparkConf().setAppName(appName).set("spark.serializer","org.apache.spark.serializer.KryoSerializer")
+    val parser = getParserFactory.getParserParameter(argumentClass).get
      parser.parser(args)
-//     if(parser.isEs){
-//       val map = getESConfig(ehlConf)
-//       conf.setAll(map)
-//     }
+     if(parser.isEs){
+       val map = getESConfig(ehlConf)
+       conf.setAll(map)
+     }
 
     val session = new SparkContext(conf)
     try{
